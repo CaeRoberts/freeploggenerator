@@ -61,7 +61,7 @@ export interface RouteSketchOptions {
   heightFraction: number; // 0.2–0.6
 }
 
-export interface MinimaOptions {}
+export type MinimaOptions = Record<string, never>;
 
 interface SectionBase {
   id: string;

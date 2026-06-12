@@ -129,15 +129,20 @@ export function pageSections(
 
 /**
  * The one flexible section on a page: the first enabled clearance/notes,
- * else the last section. It absorbs leftover height.
+ * else the last stretchable table (fuel plan / comms-nav). It absorbs
+ * leftover height. Fraction-sized sections (flight log, route sketch)
+ * keep their configured height and never flex.
  */
 export function flexSectionId(sections: SectionInstance[]): string | null {
   const writing = sections.find(
     (s) => s.type === "clearance" || s.type === "notes"
   );
   if (writing) return writing.id;
-  const last = sections[sections.length - 1];
-  return last ? last.id : null;
+  for (let i = sections.length - 1; i >= 0; i--) {
+    const t = sections[i].type;
+    if (t === "fuelPlan" || t === "commsNav") return sections[i].id;
+  }
+  return null;
 }
 
 export interface PageLayout {
@@ -148,6 +153,9 @@ export interface PageLayout {
   overflow: boolean;
 }
 
+/** Writing lines can compress to roughly this height when their section flexes. */
+const WRITING_LINE_MIN = 9;
+
 export function computePageLayout(
   config: PlogConfig,
   page: PageSide
@@ -157,9 +165,16 @@ export function computePageLayout(
   const top = page === "front" ? TITLE_BAR_H + SECTION_GAP : 0;
   const gaps = Math.max(sections.length - 1, 0) * SECTION_GAP;
   const total =
-    top + gaps + sections.reduce((sum, s) => sum + sectionHeight(s), 0);
-  // The flexible section can shrink writing lines a little, but fixed
-  // content overflowing the sheet is what we warn about.
+    top +
+    gaps +
+    sections.reduce((sum, s) => {
+      // A flexible writing section squeezes its dotted lines to fit, so
+      // count it at its minimum height rather than its natural one.
+      if (s.id === flexId && (s.type === "clearance" || s.type === "notes")) {
+        return sum + SECTION_HEADER_H + s.options.lines * WRITING_LINE_MIN;
+      }
+      return sum + sectionHeight(s);
+    }, 0);
   return {
     sections,
     flexId,

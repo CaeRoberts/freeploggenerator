@@ -278,20 +278,6 @@ export function vfrTemplate(): PlogConfig {
     },
     {
       id: id("sec"),
-      type: "fuelPlan",
-      enabled: true,
-      page: "front",
-      options: { rows: fuelRows() },
-    },
-    {
-      id: id("sec"),
-      type: "commsNav",
-      enabled: true,
-      page: "front",
-      options: { rows: 6 },
-    },
-    {
-      id: id("sec"),
       type: "routeSketch",
       enabled: true,
       page: "back",
@@ -299,10 +285,24 @@ export function vfrTemplate(): PlogConfig {
     },
     {
       id: id("sec"),
+      type: "fuelPlan",
+      enabled: true,
+      page: "back",
+      options: { rows: fuelRows() },
+    },
+    {
+      id: id("sec"),
+      type: "commsNav",
+      enabled: true,
+      page: "back",
+      options: { rows: 5 },
+    },
+    {
+      id: id("sec"),
       type: "notes",
       enabled: true,
       page: "back",
-      options: { lines: 8 },
+      options: { lines: 4 },
     },
     {
       id: id("sec"),
