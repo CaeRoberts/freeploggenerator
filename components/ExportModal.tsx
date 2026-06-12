@@ -43,11 +43,11 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
         role="dialog"
         aria-modal="true"
         aria-label="Download PDF"
-        className="w-full max-w-md border border-ink bg-paper p-6 shadow-page"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-ink bg-paper p-6 shadow-page sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-baseline justify-between">
-          <h2 className="font-serif text-[19px]">Download PDF</h2>
+          <h2 className="font-serif text-[22px]">Download PDF</h2>
           <button
             onClick={onClose}
             aria-label="Close"
@@ -57,32 +57,38 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="space-y-4 pt-4">
-          <label className="block">
-            <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
-              Filename
-            </span>
-            <TextInput
-              value={filename}
-              onChange={setFilename}
-              ariaLabel="Filename"
-              className="font-mono"
-            />
-          </label>
+        <div className="pt-5">
+          <AdSlot placement="modal" height={280} />
+        </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <span
-              className="text-[12px] text-ink-soft underline decoration-dotted underline-offset-2"
-              title={FLIP_TOOLTIP}
-            >
-              Invert back page for bottom-flip
-            </span>
-            <Toggle
-              checked={config.invertBack}
-              label="Invert back page"
-              title={FLIP_TOOLTIP}
-              onChange={(invertBack) => patchConfig({ invertBack })}
-            />
+        <div className="space-y-4 pt-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <label className="block min-w-0 flex-1">
+              <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+                Filename
+              </span>
+              <TextInput
+                value={filename}
+                onChange={setFilename}
+                ariaLabel="Filename"
+                className="font-mono"
+              />
+            </label>
+
+            <div className="flex shrink-0 items-center gap-3 pb-1">
+              <span
+                className="text-[12px] text-ink-soft underline decoration-dotted underline-offset-2"
+                title={FLIP_TOOLTIP}
+              >
+                Invert back page for bottom-flip
+              </span>
+              <Toggle
+                checked={config.invertBack}
+                label="Invert back page"
+                title={FLIP_TOOLTIP}
+                onChange={(invertBack) => patchConfig({ invertBack })}
+              />
+            </div>
           </div>
 
           <p className="border-l-2 border-hairline pl-3 text-[12px] leading-relaxed text-ink-soft">
@@ -94,7 +100,7 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
           <button
             onClick={download}
             disabled={busy}
-            className="w-full bg-navy px-4 py-2.5 text-[13px] tracking-wide text-paper hover:bg-navy-deep disabled:opacity-60"
+            className="w-full bg-navy px-4 py-3 text-[13px] tracking-wide text-paper hover:bg-navy-deep disabled:opacity-60"
           >
             {busy
               ? "Rendering…"
@@ -102,8 +108,6 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
                 ? `Saved ${sanitizeFilename(filename)} — download again`
                 : "Download PDF"}
           </button>
-
-          <AdSlot placement="modal" height={110} />
         </div>
       </div>
     </div>
