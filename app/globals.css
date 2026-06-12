@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1a1817;
+  --paper: #faf8f3;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  color: var(--ink);
+  background: var(--paper);
+}
+
+::selection {
+  background: #1b2a4a;
+  color: #faf8f3;
+}
+
+/* Hairline-styled native range controls */
+input[type="range"] {
+  @apply h-px appearance-none bg-hairline;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  @apply h-3.5 w-3.5 cursor-pointer rounded-full border border-ink bg-paper;
+}
+input[type="range"]::-moz-range-thumb {
+  @apply h-3.5 w-3.5 cursor-pointer rounded-full border border-ink bg-paper;
+}
+
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #dcd6c9 transparent;
+}
