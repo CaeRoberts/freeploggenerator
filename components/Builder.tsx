@@ -3,13 +3,19 @@
 import { useEffect, useState } from "react";
 import { Preview } from "./Preview";
 import { Header } from "./Header";
+import { HeaderActions } from "./HeaderActions";
+import { Footer } from "./Footer";
+import { ExportModal } from "./ExportModal";
+import { AdSlot } from "./AdSlot";
 import { DocumentSettings } from "./editor/DocumentSettings";
 import { SectionList } from "./editor/SectionList";
+import { ConfigTransfer } from "./editor/ConfigTransfer";
 import { usePlogStore } from "@/lib/store";
 import { clearHash, configFromHash } from "@/lib/share";
 
 export function Builder() {
   const [mounted, setMounted] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const setConfig = usePlogStore((s) => s.setConfig);
 
   useEffect(() => {
@@ -34,12 +40,16 @@ export function Builder() {
 
   return (
     <>
-      <Header />
+      <Header actions={<HeaderActions onDownload={() => setExporting(true)} />} />
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 px-5 py-6 lg:flex-row lg:gap-10">
         <aside className="order-2 w-full shrink-0 lg:order-1 lg:w-[360px]">
           <div className="panel-scroll lg:sticky lg:top-16 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-2">
             <DocumentSettings />
             <SectionList />
+            <ConfigTransfer />
+            <div className="py-4">
+              <AdSlot placement="panel" height={250} />
+            </div>
           </div>
         </aside>
         <section className="order-1 min-w-0 flex-1 lg:order-2">
@@ -48,6 +58,8 @@ export function Builder() {
           </div>
         </section>
       </main>
+      <Footer />
+      {exporting && <ExportModal onClose={() => setExporting(false)} />}
     </>
   );
 }
