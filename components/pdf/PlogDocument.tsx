@@ -5,6 +5,7 @@ import type {
   ChecklistPhase,
   ColumnDef,
   CommsNavOptions,
+  ExportLayout,
   FlightLogOptions,
   FuelPlanOptions,
   LinesOptions,
@@ -37,6 +38,11 @@ const FAINT = "#bbbbbb";
 
 const HEAVY = 1.1;
 const THIN = 0.4;
+
+// A4 landscape (pts). Two A5 portrait halves (2 × 419.53 = 839.06) sit side
+// by side with ~1.4pt slack each side.
+const A4L_W = 841.89;
+const A4L_H = 595.28;
 
 const styles = StyleSheet.create({
   page: {
@@ -585,6 +591,27 @@ function PageContent({
   );
 }
 
+/** One A5 area (margin + content) for the side-by-side A4 sheet. */
+function A5Half({
+  config,
+  page,
+  rotate,
+}: {
+  config: PlogConfig;
+  page: PageSide;
+  rotate: boolean;
+}) {
+  return (
+    <View style={{ width: PAGE_W, height: PAGE_H, padding: MARGIN }}>
+      <View
+        style={[styles.content, rotate ? { transform: "rotate(180deg)" } : {}]}
+      >
+        <PageContent config={config} page={page} />
+      </View>
+    </View>
+  );
+}
+
 export interface PlogDocumentProps {
   config: PlogConfig;
   /**
@@ -593,9 +620,61 @@ export interface PlogDocumentProps {
    * exported PDF prints it inverted for the bottom-flip.
    */
   previewPage?: PageSide;
+  /** Output format. Ignored when previewPage is set. */
+  exportLayout?: ExportLayout;
 }
 
-export function PlogDocument({ config, previewPage }: PlogDocumentProps) {
+export function PlogDocument({
+  config,
+  previewPage,
+  exportLayout = "duplexA5",
+}: PlogDocumentProps) {
+  if (!previewPage && exportLayout === "sideBySideA4") {
+    const rotateBack = config.invertBack;
+    return (
+      <Document
+        title={config.title}
+        producer="freeflyingplog"
+        creator="freeflyingplog"
+      >
+        <Page
+          size={[A4L_W, A4L_H]}
+          style={{
+            backgroundColor: "#ffffff",
+            fontFamily: "Helvetica",
+            color: INK,
+          }}
+          wrap={false}
+        >
+          <View
+            style={{
+              width: A4L_W,
+              height: A4L_H,
+              flexDirection: "row",
+              justifyContent: "center",
+              position: "relative",
+            }}
+          >
+            <A5Half config={config} page="front" rotate={false} />
+            <A5Half config={config} page="back" rotate={rotateBack} />
+            {/* Dashed guide for cutting the sheet into two A5 cards. */}
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: A4L_W / 2,
+                borderLeftWidth: 0.5,
+                borderLeftColor: "#cccccc",
+                borderLeftStyle: "dashed",
+              }}
+            />
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
   const pages: PageSide[] = previewPage ? [previewPage] : ["front", "back"];
   return (
     <Document title={config.title} producer="freeflyingplog" creator="freeflyingplog">

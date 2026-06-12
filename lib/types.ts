@@ -90,6 +90,14 @@ export interface PlogConfig {
   sections: SectionInstance[];
 }
 
+/**
+ * Output format chosen at download time (not part of the saved design):
+ * - duplexA5: two A5 pages, back rotated per invertBack — print double-sided.
+ * - sideBySideA4: one A4-landscape sheet with the two A5 pages side by side —
+ *   print single-sided, then cut down the middle.
+ */
+export type ExportLayout = "duplexA5" | "sideBySideA4";
+
 export const SECTION_LABELS: Record<SectionType, string> = {
   flightLog: "Flight log",
   checklist: "Checklist",

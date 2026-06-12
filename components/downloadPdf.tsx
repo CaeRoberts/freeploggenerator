@@ -1,6 +1,6 @@
 "use client";
 
-import type { PlogConfig } from "@/lib/types";
+import type { ExportLayout, PlogConfig } from "@/lib/types";
 
 export function sanitizeFilename(name: string): string {
   const base = name.trim().replace(/\.pdf$/i, "");
@@ -8,13 +8,19 @@ export function sanitizeFilename(name: string): string {
   return `${safe}.pdf`;
 }
 
-/** Renders the full two-page document (with back-page rotation) and saves it. */
-export async function downloadPdf(config: PlogConfig, filename: string) {
+/** Renders the export document for the chosen layout and saves it. */
+export async function downloadPdf(
+  config: PlogConfig,
+  filename: string,
+  exportLayout: ExportLayout = "duplexA5"
+) {
   const [{ pdf }, { PlogDocument }] = await Promise.all([
     import("@react-pdf/renderer"),
     import("./pdf/PlogDocument"),
   ]);
-  const blob = await pdf(<PlogDocument config={config} />).toBlob();
+  const blob = await pdf(
+    <PlogDocument config={config} exportLayout={exportLayout} />
+  ).toBlob();
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
