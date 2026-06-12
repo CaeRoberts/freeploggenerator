@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# freeflyingplog
 
-## Getting Started
+Free, single-page web app where pilots design a custom kneeboard PLOG
+(pilot's log) and download it as a print-ready A5 PDF. Everything runs
+client-side — no backend, no database, no sign-up — so it deploys as a
+static site (Vercel free tier, GitHub Pages, anywhere).
 
-First, run the development server:
+## The flip trick
+
+The back page is rotated 180° in the PDF. The card is clipped at the top
+of a kneeboard; the pilot flips the bottom edge up over the clip, so the
+rotated back reads upright. Print duplex, **flip on long edge**. A toggle
+disables the rotation for separate sheets / short-edge duplex.
+
+## Stack
+
+- Next.js 14 (App Router, static export), TypeScript, Tailwind CSS
+- `@react-pdf/renderer` — the PDF document component is the single source
+  of truth; the live preview renders the same document
+- `zustand` (config state, persisted to localStorage)
+- `dnd-kit` (drag-to-reorder sections and checklist items)
+- `lz-string` (share links: config compressed into the URL `#` fragment)
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # static export to ./out
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Dev utilities (not part of the build):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx tsx scripts/render-test.tsx        # render all templates to /tmp/plogtest
+npx tsx scripts/pdf2png.ts <file.pdf>  # rasterize a PDF for inspection
+node scripts/screenshot.mjs [path]     # serve ./out and screenshot a page
+node scripts/verify.mjs                # e2e checks (persistence, share, export)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Ads (off by default)
 
-## Learn More
+Two placements (config panel bottom, export modal) render quiet
+placeholders unless enabled:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEXT_PUBLIC_ADS_ENABLED=true
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX
+NEXT_PUBLIC_ADSENSE_SLOT_PANEL=1234567890
+NEXT_PUBLIC_ADSENSE_SLOT_MODAL=0987654321
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ad scripts load only after cookie consent (banner shown when ads are
+enabled); declining means no ad scripts load at all. The download is never
+gated or delayed by an ad.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Templates
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **IFR** — 12-leg flight log (shaded HDG (M) column), two-column phase
+  checklist with auto-slotted minima box; inverted back with route sketch,
+  clearance/ATIS, fuel plan, comms/nav.
+- **VFR** — 8-leg log, single-column FREDA/BUMFICHH checklist; back with a
+  larger route sketch, fuel plan, comms/nav and notes. (The spec'd
+  all-on-front arrangement physically overflows A5 at legible sizes, so
+  fuel plan and comms/nav live on the back.)
+- **Blank canvas** — flight log only; switch on whatever you need.

@@ -36,8 +36,8 @@ export function HeaderActions({ onDownload }: { onDownload: () => void }) {
 
   return (
     <>
-      <label className="hidden items-center gap-1.5 sm:flex">
-        <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+      <label className="flex items-center gap-1.5">
+        <span className="hidden text-[10px] uppercase tracking-[0.12em] text-ink-faint sm:inline">
           Template
         </span>
         <select

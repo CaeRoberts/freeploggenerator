@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { ConsentBanner } from "@/components/ConsentBanner";
 import "./globals.css";
 
 const serif = Fraunces({
@@ -27,6 +28,7 @@ export default function RootLayout({
         className={`${serif.variable} ${sans.variable} ${mono.variable} font-sans antialiased`}
       >
         {children}
+        <ConsentBanner />
       </body>
     </html>
   );
