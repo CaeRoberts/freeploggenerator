@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useConsent } from "@/lib/consent";
+import { ADS_ENABLED } from "@/lib/ads";
 
-const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === "true";
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "";
 
 /**

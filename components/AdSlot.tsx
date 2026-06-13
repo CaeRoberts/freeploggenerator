@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useConsent } from "@/lib/consent";
+import { ADS_ENABLED } from "@/lib/ads";
 
-const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === "true";
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "";
 
 const SLOT_IDS: Record<string, string> = {
@@ -12,9 +12,10 @@ const SLOT_IDS: Record<string, string> = {
 };
 
 /**
- * One of exactly two ad placements. Always reserves its height so the
- * layout never shifts; renders a quiet placeholder unless ads are enabled
- * and the visitor has consented.
+ * One of exactly two ad placements. When ads are disabled it renders
+ * nothing at all (no placeholder, no reserved space). When enabled it
+ * reserves its height to avoid layout shift and shows a quiet placeholder
+ * until a real ad loads (consent granted + client configured).
  */
 export function AdSlot({
   placement,
@@ -37,6 +38,9 @@ export function AdSlot({
       // ad blocked or script missing — the reserved space stays quiet
     }
   }, [live]);
+
+  // Disabled => occupy no space whatsoever.
+  if (!ADS_ENABLED) return null;
 
   return (
     <div

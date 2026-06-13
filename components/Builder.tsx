@@ -8,6 +8,7 @@ import { Footer } from "./Footer";
 import { ExportModal } from "./ExportModal";
 import { AdSlot } from "./AdSlot";
 import { TipsSection } from "./TipsSection";
+import { ADS_ENABLED } from "@/lib/ads";
 import { DocumentSettings } from "./editor/DocumentSettings";
 import { SectionList } from "./editor/SectionList";
 import { ConfigTransfer } from "./editor/ConfigTransfer";
@@ -48,9 +49,11 @@ export function Builder() {
             <DocumentSettings />
             <SectionList />
             <ConfigTransfer />
-            <div className="py-4">
-              <AdSlot placement="panel" height={250} />
-            </div>
+            {ADS_ENABLED && (
+              <div className="py-4">
+                <AdSlot placement="panel" height={250} />
+              </div>
+            )}
           </div>
         </aside>
         <section className="order-1 min-w-0 flex-1 lg:order-2">

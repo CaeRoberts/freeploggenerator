@@ -5,6 +5,7 @@ import { usePlogStore } from "@/lib/store";
 import type { ExportLayout } from "@/lib/types";
 import { downloadPdf, sanitizeFilename } from "./downloadPdf";
 import { AdSlot } from "./AdSlot";
+import { ADS_ENABLED } from "@/lib/ads";
 import { TextInput, Toggle } from "./ui";
 
 const FLIP_TOOLTIP =
@@ -109,9 +110,11 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="pt-5">
-          <AdSlot placement="modal" height={280} />
-        </div>
+        {ADS_ENABLED && (
+          <div className="pt-5">
+            <AdSlot placement="modal" height={280} />
+          </div>
+        )}
 
         <div className="space-y-4 pt-5">
           <fieldset>
