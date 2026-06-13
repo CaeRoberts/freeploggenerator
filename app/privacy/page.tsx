@@ -67,7 +67,21 @@ export default function PrivacyPage() {
           </p>
 
           <h2 className="pt-3 font-serif text-[22px]">Analytics</h2>
-          <p>None. No analytics, no fingerprinting, no pixels.</p>
+          <p>
+            We use{" "}
+            <a
+              href="https://vercel.com/docs/analytics/privacy-policy"
+              className="underline underline-offset-2"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Vercel Web Analytics
+            </a>{" "}
+            to count page views and understand which features get used. It is
+            privacy-friendly: it sets no cookies, does not track you across
+            sites, and collects no personally identifying information or
+            fingerprints. Your PLOG designs are never sent to it.
+          </p>
 
           <h2 className="pt-3 font-serif text-[22px]">Contact</h2>
           <p>

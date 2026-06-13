@@ -52,12 +52,23 @@ const styles = StyleSheet.create({
     color: INK,
     backgroundColor: "#ffffff",
   },
-  content: {
+  // Fixed-size box that anchors the 180° back-page rotation to the page
+  // centre. Content is an absolutely-positioned child so it flows at its
+  // natural height — when it overflows, the page edge clips it instead of
+  // react-pdf collapsing the flex rows (which blanked the checklist).
+  stage: {
     width: CONTENT_W,
     height: CONTENT_H,
-    display: "flex",
+  },
+  flow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: CONTENT_W,
+    // Fills the page so the flexible section can grow, yet can exceed it
+    // (clipped by the page edge) without collapsing when content overflows.
+    minHeight: CONTENT_H,
     flexDirection: "column",
-    overflow: "hidden",
   },
   band: {
     backgroundColor: BAND,
@@ -209,6 +220,7 @@ function PhaseBlock({ phase, last }: { phase: ChecklistPhase; last: boolean }) {
     <View
       style={{
         flexDirection: "row",
+        flexShrink: 0,
         borderBottomWidth: last ? 0 : HEAVY,
         borderBottomColor: INK,
       }}
@@ -232,6 +244,7 @@ function PhaseBlock({ phase, last }: { phase: ChecklistPhase; last: boolean }) {
             key={item.id}
             style={{
               flexDirection: "row",
+              flexShrink: 0,
               justifyContent: "space-between",
               alignItems: "center",
               minHeight: 11.2,
@@ -577,6 +590,7 @@ function PageContent({
           style={{
             marginBottom: i < sections.length - 1 ? SECTION_GAP : 0,
             flexGrow: section.id === flexId ? 1 : 0,
+            flexShrink: 0,
             flexDirection: "column",
           }}
         >
@@ -603,10 +617,10 @@ function A5Half({
 }) {
   return (
     <View style={{ width: PAGE_W, height: PAGE_H, padding: MARGIN }}>
-      <View
-        style={[styles.content, rotate ? { transform: "rotate(180deg)" } : {}]}
-      >
-        <PageContent config={config} page={page} />
+      <View style={[styles.stage, rotate ? { transform: "rotate(180deg)" } : {}]}>
+        <View style={styles.flow}>
+          <PageContent config={config} page={page} />
+        </View>
       </View>
     </View>
   );
@@ -683,12 +697,11 @@ export function PlogDocument({
         return (
           <Page key={side} size={[PAGE_W, PAGE_H]} style={styles.page} wrap={false}>
             <View
-              style={[
-                styles.content,
-                rotate ? { transform: "rotate(180deg)" } : {},
-              ]}
+              style={[styles.stage, rotate ? { transform: "rotate(180deg)" } : {}]}
             >
-              <PageContent config={config} page={side} />
+              <View style={styles.flow}>
+                <PageContent config={config} page={side} />
+              </View>
             </View>
           </Page>
         );
