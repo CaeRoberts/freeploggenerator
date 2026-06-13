@@ -14,6 +14,9 @@ export function Footer() {
           <Link href="/guide" className="hover:text-ink">
             What is a PLOG?
           </Link>
+          <Link href="/#supporters" className="hover:text-ink">
+            Supporters
+          </Link>
           <Link href="/privacy" className="hover:text-ink">
             Privacy
           </Link>

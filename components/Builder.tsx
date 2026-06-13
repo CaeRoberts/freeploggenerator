@@ -7,6 +7,7 @@ import { HeaderActions } from "./HeaderActions";
 import { Footer } from "./Footer";
 import { ExportModal } from "./ExportModal";
 import { AdSlot } from "./AdSlot";
+import { TipsSection } from "./TipsSection";
 import { DocumentSettings } from "./editor/DocumentSettings";
 import { SectionList } from "./editor/SectionList";
 import { ConfigTransfer } from "./editor/ConfigTransfer";
@@ -58,6 +59,7 @@ export function Builder() {
           </div>
         </section>
       </main>
+      <TipsSection />
       <Footer />
       {exporting && <ExportModal onClose={() => setExporting(false)} />}
     </>
