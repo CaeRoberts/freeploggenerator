@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { PlogConfig, SectionInstance } from "./types";
 import { ifrTemplate } from "./templates";
+import { normalizeConfig } from "./normalize";
 
 interface PlogStore {
   config: PlogConfig;
@@ -20,7 +21,9 @@ export const usePlogStore = create<PlogStore>()(
   persist(
     (set) => ({
       config: ifrTemplate(),
-      setConfig: (config) => set({ config }),
+      // Normalize on every externally-supplied config (template, shared
+      // link, imported JSON) so ids are always unique.
+      setConfig: (config) => set({ config: normalizeConfig(config) }),
       patchConfig: (patch) =>
         set((state) => ({ config: { ...state.config, ...patch } })),
       updateSection: (id, update) =>
@@ -47,6 +50,15 @@ export const usePlogStore = create<PlogStore>()(
       name: "freeflyingplog-config",
       storage: createJSONStorage(() => localStorage),
       version: 1,
+      // Heal any duplicate ids in a previously-saved config on load.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<PlogStore>;
+        return {
+          ...current,
+          ...p,
+          config: p.config ? normalizeConfig(p.config) : current.config,
+        };
+      },
     }
   )
 );

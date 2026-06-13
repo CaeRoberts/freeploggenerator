@@ -6,7 +6,20 @@ import type {
 } from "./types";
 
 let uid = 0;
-const id = (prefix: string) => `${prefix}-${(uid++).toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+/**
+ * Collision-proof id. Prefers crypto.randomUUID (unique across sessions,
+ * shares and imports); falls back to time + randomness + a counter for
+ * non-secure contexts. The old counter-only scheme replayed the same
+ * sequence on every page load, so cross-session ids could collide — which
+ * broke React keys and duplicated rows when reordering.
+ */
+const id = (prefix: string) => {
+  const g = typeof globalThis !== "undefined" ? globalThis : undefined;
+  if (g?.crypto?.randomUUID) return `${prefix}-${g.crypto.randomUUID()}`;
+  return `${prefix}-${Date.now().toString(36)}-${(uid++).toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+};
 
 export const newId = id;
 
