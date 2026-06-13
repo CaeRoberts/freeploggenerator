@@ -4,9 +4,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Privacy — freeflyingplog",
+  title: "Privacy",
   description:
-    "freeflyingplog runs entirely in your browser: no accounts, no databases, no tracking without consent.",
+    "freeploggenerator runs entirely in your browser: no accounts, no databases, no tracking without consent.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

@@ -1,4 +1,4 @@
-# freeflyingplog
+# freeploggenerator
 
 Free, single-page web app where pilots design a custom kneeboard PLOG
 (pilot's log) and download it as a print-ready A5 PDF. Everything runs

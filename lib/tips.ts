@@ -31,9 +31,11 @@ export interface TipYear {
 
 /** Where the "Tip" button sends people. Override per-deploy with env. */
 export const TIP_URL =
-  process.env.NEXT_PUBLIC_TIP_URL ?? "https://ko-fi.com/freeflyingplog";
+  process.env.NEXT_PUBLIC_TIP_URL ?? "https://ko-fi.com/freeploggenerator";
 export const TIP_PROVIDER = process.env.NEXT_PUBLIC_TIP_PROVIDER ?? "Ko-fi";
 export const TIP_CURRENCY = process.env.NEXT_PUBLIC_TIP_CURRENCY ?? "£";
+/** Rough yearly running cost (hosting + domain) the tip jar aims to cover. */
+export const TIP_GOAL = Number(process.env.NEXT_PUBLIC_TIP_GOAL ?? 30);
 
 /**
  * Curated leaderboard, newest year first. To feature a company on the logo
@@ -77,6 +79,11 @@ export function rankedTippers(y: TipYear): Tipper[] {
 /** Companies with a logo, for the wall — highest contribution first. */
 export function featuredTippers(y: TipYear): Tipper[] {
   return rankedTippers(y).filter((t) => t.company && t.logo);
+}
+
+/** Total contributed in a year — drives the running-costs meter. */
+export function tipTotal(y: TipYear): number {
+  return y.tippers.reduce((sum, t) => sum + (t.amount || 0), 0);
 }
 
 export function formatTip(amount: number): string {

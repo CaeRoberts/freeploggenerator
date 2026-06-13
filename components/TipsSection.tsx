@@ -2,16 +2,61 @@
 
 import { useState } from "react";
 import {
+  TIP_GOAL,
   TIP_PROVIDER,
   TIP_URL,
+  type TipYear,
   type Tipper,
   availableYears,
   featuredTippers,
   formatTip,
   monogram,
   rankedTippers,
+  tipTotal,
   tipYear,
 } from "@/lib/tips";
+
+function CostMeter({ year }: { year: TipYear }) {
+  const total = tipTotal(year);
+  const pct = TIP_GOAL > 0 ? Math.min(total / TIP_GOAL, 1) : 0;
+  const funded = TIP_GOAL > 0 && total >= TIP_GOAL;
+  return (
+    <div className="mt-5 border border-hairline p-4">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+          {year.year} running costs
+        </span>
+        <span className="font-mono text-[12px] text-ink">
+          {formatTip(total)} <span className="text-ink-faint">/ ~{formatTip(TIP_GOAL)}</span>
+        </span>
+      </div>
+      <div
+        className="mt-2 h-2.5 w-full overflow-hidden border border-hairline bg-paper-deep/50"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={TIP_GOAL}
+        aria-valuenow={Math.min(total, TIP_GOAL)}
+        aria-label={`${year.year} running costs covered by tips`}
+      >
+        <div
+          className="h-full bg-navy transition-[width] duration-500"
+          style={{ width: `${pct * 100}%` }}
+        />
+      </div>
+      <p className="mt-2 text-[12px] leading-relaxed text-ink-soft">
+        {funded
+          ? `${year.year}'s hosting and domain are covered — thank you. Anything extra keeps the ads lighter.`
+          : `Goes toward the roughly ${formatTip(
+              TIP_GOAL
+            )}/year it costs to host freeploggenerator.com. ${
+              total > 0
+                ? `${Math.round(pct * 100)}% covered so far this year.`
+                : `Be the first to chip in.`
+            }`}
+      </p>
+    </div>
+  );
+}
 
 function TipButton({ block }: { block?: boolean }) {
   return (
@@ -132,10 +177,12 @@ export function TipsSection() {
           <div>
             <h2 className="font-serif text-[26px] leading-tight">Tip jar</h2>
             <p className="mt-3 max-w-md text-[14px] leading-relaxed text-ink-soft">
-              freeflyingplog is free and runs on a shoestring. If a clean
+              freeploggenerator is free and runs on a shoestring. If a clean
               kneeboard card saved you some time, a small tip helps keep it
               online and the ads light. No sign-up, no pressure.
             </p>
+
+            <CostMeter year={current} />
 
             <div className="mt-5 flex items-center gap-3">
               <TipButton />

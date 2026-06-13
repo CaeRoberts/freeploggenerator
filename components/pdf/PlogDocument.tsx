@@ -648,8 +648,8 @@ export function PlogDocument({
     return (
       <Document
         title={config.title}
-        producer="freeflyingplog"
-        creator="freeflyingplog"
+        producer="freeploggenerator"
+        creator="freeploggenerator"
       >
         <Page
           size={[A4L_W, A4L_H]}
@@ -691,7 +691,7 @@ export function PlogDocument({
 
   const pages: PageSide[] = previewPage ? [previewPage] : ["front", "back"];
   return (
-    <Document title={config.title} producer="freeflyingplog" creator="freeflyingplog">
+    <Document title={config.title} producer="freeploggenerator" creator="freeploggenerator">
       {pages.map((side) => {
         const rotate = !previewPage && side === "back" && config.invertBack;
         return (

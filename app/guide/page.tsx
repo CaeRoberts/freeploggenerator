@@ -4,9 +4,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "What is a PLOG? — freeflyingplog",
+  title: "What is a PLOG? A guide to kneeboard pilot's logs",
   description:
     "A short guide to the kneeboard pilot's log: what goes on a PLOG, how the bottom-flip trick works, and how to build and print your own A5 card for free.",
+  alternates: { canonical: "/guide" },
 };
 
 export default function GuidePage() {

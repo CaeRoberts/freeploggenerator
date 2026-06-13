@@ -27,7 +27,7 @@ export function ConfigTransfer() {
       if (parsed?.version === 1 && Array.isArray(parsed.sections)) {
         setConfig(parsed);
       } else {
-        window.alert("That file doesn't look like a freeflyingplog config.");
+        window.alert("That file doesn't look like a freeploggenerator config.");
       }
     } catch {
       window.alert("Couldn't read that file as JSON.");

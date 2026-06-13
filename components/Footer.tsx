@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto flex w-full max-w-[1280px] flex-wrap items-baseline justify-between gap-3 px-5 py-6">
         <p className="text-[12px] text-ink-faint">
           <span className="font-serif text-[14px] lowercase text-ink">
-            freeflyingplog
+            freeploggenerator
           </span>{" "}
           — free kneeboard PLOGs, no sign-up.
         </p>
