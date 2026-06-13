@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { PDFViewer, pdf } from "@react-pdf/renderer";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { pdf } from "@react-pdf/renderer";
 import { PlogDocument } from "./pdf/PlogDocument";
 import type { PageSide, PlogConfig } from "@/lib/types";
 
@@ -10,50 +10,91 @@ interface FrameProps {
   config: PlogConfig;
 }
 
+/**
+ * Renders the document to a fresh PDF blob. We deliberately avoid
+ * @react-pdf's <PDFViewer>, whose incremental reconciler leaves ghost nodes
+ * when columns/rows/sections are added or reordered (the preview kept stale
+ * duplicate columns until it was forced to remount). Each render here builds
+ * a brand-new document, so the preview can never accumulate stale nodes.
+ */
+function usePreviewBlob(config: PlogConfig, tab: PageSide) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const latest = useRef(0);
+  const urlRef = useRef<string | null>(null);
+
+  const render = useCallback(async () => {
+    const id = ++latest.current;
+    setBusy(true);
+    try {
+      const blob = await pdf(
+        <PlogDocument config={config} previewPage={tab} />
+      ).toBlob();
+      if (id !== latest.current) return; // a newer render superseded this one
+      const next = URL.createObjectURL(blob);
+      const prev = urlRef.current;
+      urlRef.current = next;
+      setUrl(next);
+      if (prev) URL.revokeObjectURL(prev);
+    } finally {
+      if (id === latest.current) setBusy(false);
+    }
+  }, [config, tab]);
+
+  useEffect(
+    () => () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    },
+    []
+  );
+
+  return { url, busy, render };
+}
+
 export function DesktopViewer({ tab, config }: FrameProps) {
+  const { url, render } = usePreviewBlob(config, tab);
+
+  // Re-render whenever the (already debounced) config or page changes. The
+  // previous frame stays on screen until the new blob is ready, so updates
+  // don't flash blank.
+  useEffect(() => {
+    render();
+  }, [render]);
+
   return (
     <div className="mx-auto h-full w-full max-w-[560px]">
       <div className="h-full w-full shadow-page">
-        <PDFViewer
-          showToolbar={false}
-          className="h-full w-full border border-hairline"
-          style={{ backgroundColor: "#f1ede4" }}
-        >
-          <PlogDocument config={config} previewPage={tab} />
-        </PDFViewer>
+        {url ? (
+          <iframe
+            src={`${url}#toolbar=0&navpanes=0&view=FitH`}
+            className="h-full w-full border border-hairline"
+            title="PLOG preview"
+            style={{ backgroundColor: "#f1ede4" }}
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center border border-hairline text-[13px] text-ink-faint"
+            style={{ backgroundColor: "#f1ede4" }}
+          >
+            Rendering preview…
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 export function MobilePreview({ tab, config }: FrameProps) {
-  const [url, setUrl] = useState<string | null>(null);
+  const { url, busy, render } = usePreviewBlob(config, tab);
   const [stale, setStale] = useState(true);
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setStale(true);
   }, [config, tab]);
 
-  useEffect(() => () => {
-    if (url) URL.revokeObjectURL(url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const generate = async () => {
-    setBusy(true);
-    try {
-      const blob = await pdf(
-        <PlogDocument config={config} previewPage={tab} />
-      ).toBlob();
-      setUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(blob);
-      });
-      setStale(false);
-    } finally {
-      setBusy(false);
-    }
+    await render();
+    setStale(false);
   };
 
   return (
