@@ -495,7 +495,7 @@ export function rtTemplate(): PlogConfig {
           ["FROM", "TO", "SAFE ALT", "ALT", "TRK", "WIND", "HDG (M)", "DIST", "TIME", "ETA", "ATA", "FUEL"],
           ["HDG (M)"]
         ),
-        heightFraction: 0.38,
+        heightFraction: 0.5,
       },
     },
     {

@@ -3,6 +3,7 @@ import type {
   ChecklistPhase,
   PageSide,
   PlogConfig,
+  RtCallBlock,
   SectionInstance,
 } from "./types";
 
@@ -23,12 +24,37 @@ export const COMMS_ROW_H = 13;
 export const WRITING_LINE_H = 17;
 export const MINIMA_H = 46;
 export const SECTION_GAP = 5;
-export const RT_LINE_H = 12.5;
-export const RT_BLOCK_TITLE_H = 13;
-export const RT_NOTE_H = 11;
+export const RT_LINE_H = 9.5;
+export const RT_BLOCK_TITLE_H = 11;
+export const RT_NOTE_H = 9;
 
 export function phaseHeight(phase: ChecklistPhase): number {
   return Math.max(phase.items.length, 1) * CHECKLIST_ITEM_H + CHECKLIST_PHASE_PAD;
+}
+
+export function rtBlockHeight(block: RtCallBlock): number {
+  return RT_BLOCK_TITLE_H + block.lines.length * RT_LINE_H;
+}
+
+/** Split R/T blocks across two columns, minimising the height difference. */
+export function balanceRtBlocks(
+  blocks: RtCallBlock[]
+): [RtCallBlock[], RtCallBlock[]] {
+  if (blocks.length <= 1) return [blocks, []];
+  const heights = blocks.map(rtBlockHeight);
+  const total = heights.reduce((a, b) => a + b, 0);
+  let best = blocks.length;
+  let bestDiff = Infinity;
+  let acc = 0;
+  for (let k = 0; k <= blocks.length; k++) {
+    const diff = Math.abs(acc - (total - acc));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = k;
+    }
+    if (k < blocks.length) acc += heights[k];
+  }
+  return [blocks.slice(0, best), blocks.slice(best)];
 }
 
 /**
@@ -115,11 +141,15 @@ export function sectionHeight(section: SectionInstance): number {
     case "notes":
       return SECTION_HEADER_H + section.options.lines * WRITING_LINE_H;
     case "rtCall": {
-      const body = section.options.blocks.reduce(
-        (sum, b) => sum + RT_BLOCK_TITLE_H + b.lines.length * RT_LINE_H,
-        0
+      const [a, b] = balanceRtBlocks(section.options.blocks);
+      const colA = a.reduce((s, bl) => s + rtBlockHeight(bl), 0);
+      const colB = b.reduce((s, bl) => s + rtBlockHeight(bl), 0);
+      return (
+        SECTION_HEADER_H +
+        Math.max(colA, colB) +
+        (section.options.note ? RT_NOTE_H : 0) +
+        6
       );
-      return SECTION_HEADER_H + body + (section.options.note ? RT_NOTE_H : 0) + 4;
     }
     case "minima":
       return MINIMA_H;

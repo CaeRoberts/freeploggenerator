@@ -12,6 +12,7 @@ import type {
   PageSide,
   PlogConfig,
   RouteSketchOptions,
+  RtCallBlock,
   RtCallField,
   RtCallOptions,
   SectionInstance,
@@ -26,6 +27,7 @@ import {
   SECTION_GAP,
   TITLE_BAR_H,
   balanceChecklist,
+  balanceRtBlocks,
   checklistColumnHeights,
   flexSectionId,
   minimaSlottedIntoChecklist,
@@ -530,24 +532,24 @@ function RtField({ field, last }: { field: RtCallField; last: boolean }) {
         flex: 1,
         flexDirection: "row",
         alignItems: "flex-end",
-        marginRight: last ? 0 : 6,
+        marginRight: last ? 0 : 4,
       }}
     >
-      <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 6.2 }}>
+      <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 5.4 }}>
         {field.label}
       </Text>
       <View
         style={{
           flexGrow: 1,
-          marginHorizontal: 2,
-          marginBottom: 1.5,
-          borderBottomWidth: 0.6,
+          marginHorizontal: 1.5,
+          marginBottom: 1,
+          borderBottomWidth: 0.5,
           borderBottomColor: HAIR,
           borderBottomStyle: "dotted",
         }}
       />
       {field.hint ? (
-        <Text style={{ fontSize: 5.2, fontStyle: "italic", color: FAINT }}>
+        <Text style={{ fontSize: 4.4, fontStyle: "italic", color: FAINT }}>
           ({field.hint})
         </Text>
       ) : null}
@@ -555,72 +557,84 @@ function RtField({ field, last }: { field: RtCallField; last: boolean }) {
   );
 }
 
+function RtBlock({ block }: { block: RtCallBlock }) {
+  return (
+    <View style={{ marginBottom: 3 }}>
+      <Text
+        style={{
+          fontFamily: "Helvetica-Bold",
+          fontSize: 5.2,
+          letterSpacing: 0.4,
+          paddingBottom: 1,
+          marginBottom: 1,
+          borderBottomWidth: 0.4,
+          borderBottomColor: INK,
+        }}
+      >
+        {block.title}
+      </Text>
+      {block.lines.map((line) =>
+        line.text !== undefined ? (
+          <Text
+            key={line.id}
+            style={{
+              fontSize: 5,
+              color: "#444444",
+              minHeight: 9.5,
+              paddingTop: 1,
+            }}
+          >
+            {line.text}
+          </Text>
+        ) : (
+          <View
+            key={line.id}
+            style={{
+              flexDirection: "row",
+              minHeight: 9.5,
+              alignItems: "flex-end",
+              paddingBottom: 0.5,
+            }}
+          >
+            {(line.fields ?? []).map((field, fi, arr) => (
+              <RtField key={fi} field={field} last={fi === arr.length - 1} />
+            ))}
+          </View>
+        )
+      )}
+    </View>
+  );
+}
+
 function RtCall({ options }: { options: RtCallOptions }) {
+  const [colA, colB] = balanceRtBlocks(options.blocks);
   return (
     <View style={{ flexDirection: "column" }}>
       <SectionBand title="R/T CALLS" />
-      <View style={[styles.boxed, { paddingHorizontal: 5, paddingVertical: 3 }]}>
-        {options.blocks.map((block, bi) => (
-          <View
-            key={block.id}
-            style={{ marginTop: bi === 0 ? 0 : 4 }}
-          >
-            <Text
-              style={{
-                fontFamily: "Helvetica-Bold",
-                fontSize: 5.8,
-                letterSpacing: 0.5,
-                paddingBottom: 1.5,
-                marginBottom: 1.5,
-                borderBottomWidth: 0.4,
-                borderBottomColor: INK,
-              }}
-            >
-              {block.title}
-            </Text>
-            {block.lines.map((line) =>
-              line.text !== undefined ? (
-                <Text
-                  key={line.id}
-                  style={{
-                    fontSize: 6,
-                    color: "#444444",
-                    minHeight: 12.5,
-                    paddingTop: 1.5,
-                  }}
-                >
-                  {line.text}
-                </Text>
-              ) : (
-                <View
-                  key={line.id}
-                  style={{
-                    flexDirection: "row",
-                    minHeight: 12.5,
-                    alignItems: "flex-end",
-                    paddingBottom: 1,
-                  }}
-                >
-                  {(line.fields ?? []).map((field, fi, arr) => (
-                    <RtField
-                      key={fi}
-                      field={field}
-                      last={fi === arr.length - 1}
-                    />
-                  ))}
-                </View>
-              )
-            )}
+      <View style={[styles.boxed, { padding: 4 }]}>
+        <View style={{ flexDirection: "row", alignItems: "stretch" }}>
+          <View style={{ flex: 1, flexBasis: 0, paddingRight: 5 }}>
+            {colA.map((block) => (
+              <RtBlock key={block.id} block={block} />
+            ))}
           </View>
-        ))}
+          <View
+            style={{
+              flex: 1,
+              flexBasis: 0,
+              paddingLeft: 5,
+              borderLeftWidth: 0.4,
+              borderLeftColor: HAIR,
+            }}
+          >
+            {colB.map((block) => (
+              <RtBlock key={block.id} block={block} />
+            ))}
+          </View>
+        </View>
         {options.note ? (
           <Text
-            style={{
-              fontSize: 5.2,
-              fontStyle: "italic",
-              color: FAINT,
-              marginTop: 3,
-            }}
+            style={{ fontSize: 4.6, fontStyle: "italic", color: FAINT, marginTop: 1 }}
           >
             {options.note}
           </Text>
