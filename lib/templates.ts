@@ -490,19 +490,19 @@ export function rtTemplate(): PlogConfig {
       enabled: true,
       page: "front",
       options: {
-        rows: 8,
+        rows: 10,
         columns: cols(
           ["FROM", "TO", "SAFE ALT", "ALT", "TRK", "WIND", "HDG (M)", "DIST", "TIME", "ETA", "ATA", "FUEL"],
           ["HDG (M)"]
         ),
-        heightFraction: 0.5,
+        heightFraction: 0.6,
       },
     },
     {
       id: id("sec"),
       type: "rtCall",
       enabled: true,
-      page: "front",
+      page: "back",
       options: rtCallDefault(),
     },
     {
@@ -524,7 +524,7 @@ export function rtTemplate(): PlogConfig {
       type: "routeSketch",
       enabled: true,
       page: "back",
-      options: { heightFraction: 0.4 },
+      options: { heightFraction: 0.22 },
     },
     {
       id: id("sec"),
@@ -543,7 +543,7 @@ export function rtTemplate(): PlogConfig {
     {
       id: id("sec"),
       type: "notes",
-      enabled: true,
+      enabled: false,
       page: "back",
       options: { lines: 4 },
     },
