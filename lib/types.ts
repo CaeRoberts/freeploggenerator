@@ -1,6 +1,7 @@
 export type SectionType =
   | "flightLog"
   | "checklist"
+  | "rtCall"
   | "fuelPlan"
   | "commsNav"
   | "clearance"
@@ -53,6 +54,32 @@ export interface CommsNavOptions {
   rows: number;
 }
 
+/** One labelled blank: a bold prompt, a dotted fill, and a faint hint. */
+export interface RtCallField {
+  label: string; // e.g. "from", "level"
+  hint: string; // faint guidance in parentheses, e.g. "departure"; "" for none
+}
+
+export interface RtCallLine {
+  id: string;
+  /** Plain line with no blanks (e.g. "VFR / IFR / SVFR*"); takes precedence. */
+  text?: string;
+  /** One or two labelled fill-in fields rendered left to right. */
+  fields?: RtCallField[];
+}
+
+export interface RtCallBlock {
+  id: string;
+  title: string; // e.g. "ZONE TRANSIT REQUEST"
+  lines: RtCallLine[];
+}
+
+/** A CAP413-style radio-telephony call card with fill-in prompts. */
+export interface RtCallOptions {
+  blocks: RtCallBlock[];
+  note: string; // footer reference, e.g. "Full phraseology: CAP413."
+}
+
 export interface LinesOptions {
   lines: number;
 }
@@ -73,6 +100,7 @@ export type SectionInstance = SectionBase &
   (
     | { type: "flightLog"; options: FlightLogOptions }
     | { type: "checklist"; options: ChecklistOptions }
+    | { type: "rtCall"; options: RtCallOptions }
     | { type: "fuelPlan"; options: FuelPlanOptions }
     | { type: "commsNav"; options: CommsNavOptions }
     | { type: "clearance"; options: LinesOptions }
@@ -101,6 +129,7 @@ export type ExportLayout = "duplexA5" | "sideBySideA4";
 export const SECTION_LABELS: Record<SectionType, string> = {
   flightLog: "Flight log",
   checklist: "Checklist",
+  rtCall: "R/T calls",
   fuelPlan: "Fuel plan",
   commsNav: "Comms / Nav",
   clearance: "Clearance / ATIS",

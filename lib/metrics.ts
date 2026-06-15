@@ -23,6 +23,9 @@ export const COMMS_ROW_H = 13;
 export const WRITING_LINE_H = 17;
 export const MINIMA_H = 46;
 export const SECTION_GAP = 5;
+export const RT_LINE_H = 12.5;
+export const RT_BLOCK_TITLE_H = 13;
+export const RT_NOTE_H = 11;
 
 export function phaseHeight(phase: ChecklistPhase): number {
   return Math.max(phase.items.length, 1) * CHECKLIST_ITEM_H + CHECKLIST_PHASE_PAD;
@@ -111,6 +114,13 @@ export function sectionHeight(section: SectionInstance): number {
     case "clearance":
     case "notes":
       return SECTION_HEADER_H + section.options.lines * WRITING_LINE_H;
+    case "rtCall": {
+      const body = section.options.blocks.reduce(
+        (sum, b) => sum + RT_BLOCK_TITLE_H + b.lines.length * RT_LINE_H,
+        0
+      );
+      return SECTION_HEADER_H + body + (section.options.note ? RT_NOTE_H : 0) + 4;
+    }
     case "minima":
       return MINIMA_H;
   }

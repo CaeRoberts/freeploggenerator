@@ -12,6 +12,8 @@ import type {
   PageSide,
   PlogConfig,
   RouteSketchOptions,
+  RtCallField,
+  RtCallOptions,
   SectionInstance,
 } from "@/lib/types";
 import {
@@ -519,6 +521,115 @@ function WritingLines({
   );
 }
 
+/* ------------------------------ r/t calls ---------------------------- */
+
+function RtField({ field, last }: { field: RtCallField; last: boolean }) {
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "flex-end",
+        marginRight: last ? 0 : 6,
+      }}
+    >
+      <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 6.2 }}>
+        {field.label}
+      </Text>
+      <View
+        style={{
+          flexGrow: 1,
+          marginHorizontal: 2,
+          marginBottom: 1.5,
+          borderBottomWidth: 0.6,
+          borderBottomColor: HAIR,
+          borderBottomStyle: "dotted",
+        }}
+      />
+      {field.hint ? (
+        <Text style={{ fontSize: 5.2, fontStyle: "italic", color: FAINT }}>
+          ({field.hint})
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+function RtCall({ options }: { options: RtCallOptions }) {
+  return (
+    <View style={{ flexDirection: "column" }}>
+      <SectionBand title="R/T CALLS" />
+      <View style={[styles.boxed, { paddingHorizontal: 5, paddingVertical: 3 }]}>
+        {options.blocks.map((block, bi) => (
+          <View
+            key={block.id}
+            style={{ marginTop: bi === 0 ? 0 : 4 }}
+          >
+            <Text
+              style={{
+                fontFamily: "Helvetica-Bold",
+                fontSize: 5.8,
+                letterSpacing: 0.5,
+                paddingBottom: 1.5,
+                marginBottom: 1.5,
+                borderBottomWidth: 0.4,
+                borderBottomColor: INK,
+              }}
+            >
+              {block.title}
+            </Text>
+            {block.lines.map((line) =>
+              line.text !== undefined ? (
+                <Text
+                  key={line.id}
+                  style={{
+                    fontSize: 6,
+                    color: "#444444",
+                    minHeight: 12.5,
+                    paddingTop: 1.5,
+                  }}
+                >
+                  {line.text}
+                </Text>
+              ) : (
+                <View
+                  key={line.id}
+                  style={{
+                    flexDirection: "row",
+                    minHeight: 12.5,
+                    alignItems: "flex-end",
+                    paddingBottom: 1,
+                  }}
+                >
+                  {(line.fields ?? []).map((field, fi, arr) => (
+                    <RtField
+                      key={fi}
+                      field={field}
+                      last={fi === arr.length - 1}
+                    />
+                  ))}
+                </View>
+              )
+            )}
+          </View>
+        ))}
+        {options.note ? (
+          <Text
+            style={{
+              fontSize: 5.2,
+              fontStyle: "italic",
+              color: FAINT,
+              marginTop: 3,
+            }}
+          >
+            {options.note}
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 /* ----------------------------- route sketch -------------------------- */
 
 function RouteSketch({ options }: { options: RouteSketchOptions }) {
@@ -556,6 +667,8 @@ function Section({
       return <FlightLog options={section.options} />;
     case "checklist":
       return <Checklist options={section.options} slotMinima={slotMinima} />;
+    case "rtCall":
+      return <RtCall options={section.options} />;
     case "fuelPlan":
       return <FuelPlan options={section.options} flex={flex} />;
     case "commsNav":

@@ -56,6 +56,19 @@ export function normalizeConfig(config: PlogConfig): PlogConfig {
             rows: s.options.rows.map((r) => ({ ...r, id: fix(r.id) })),
           },
         };
+      case "rtCall":
+        return {
+          ...s,
+          id,
+          options: {
+            ...s.options,
+            blocks: s.options.blocks.map((b) => ({
+              ...b,
+              id: fix(b.id),
+              lines: b.lines.map((l) => ({ ...l, id: fix(l.id) })),
+            })),
+          },
+        };
       default:
         return { ...s, id };
     }

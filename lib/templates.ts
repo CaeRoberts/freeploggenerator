@@ -2,6 +2,9 @@ import type {
   ChecklistPhase,
   ColumnDef,
   PlogConfig,
+  RtCallField,
+  RtCallLine,
+  RtCallOptions,
   SectionInstance,
 } from "./types";
 
@@ -39,6 +42,46 @@ function phases(
     name,
     items: items.map(([label, action]) => ({ id: id("it"), label, action })),
   }));
+}
+
+const f = (label: string, hint = ""): RtCallField => ({ label, hint });
+const rtFields = (fields: RtCallField[]): RtCallLine => ({ id: id("rt"), fields });
+const rtText = (text: string): RtCallLine => ({ id: id("rt"), text });
+
+/** CAP413-style zone-transit request + position report card. */
+function rtCallDefault(): RtCallOptions {
+  return {
+    blocks: [
+      {
+        id: id("rtb"),
+        title: "ZONE TRANSIT — REQUEST",
+        lines: [
+          rtText("“(unit) G-XXXX, request service & zone transit”"),
+          rtText("— when told to pass your message —"),
+          rtFields([f("G-", "aircraft type")]),
+          rtFields([f("from", "departure")]),
+          rtFields([f("to", "destination")]),
+          rtFields([f("current position")]),
+          rtFields([f("level"), f("QNH")]),
+          rtText("VFR / IFR / SVFR*"),
+          rtFields([f("via", "next point")]),
+          rtText("request (type of) service & zone transit"),
+          rtText("*SVFR: pass ETA at the zone boundary"),
+        ],
+      },
+      {
+        id: id("rtb"),
+        title: "POSITION REPORT",
+        lines: [
+          rtFields([f("G-")]),
+          rtFields([f("position"), f("time")]),
+          rtFields([f("level"), f("QNH")]),
+          rtFields([f("next position"), f("ETA")]),
+        ],
+      },
+    ],
+    note: "Full phraseology: CAP413 (CAA).",
+  };
 }
 
 const IFR_PHASES: [string, [string, string][]][] = [
@@ -222,6 +265,13 @@ export function ifrTemplate(): PlogConfig {
     },
     {
       id: id("sec"),
+      type: "rtCall",
+      enabled: false,
+      page: "front",
+      options: rtCallDefault(),
+    },
+    {
+      id: id("sec"),
       type: "routeSketch",
       enabled: true,
       page: "back",
@@ -288,6 +338,13 @@ export function vfrTemplate(): PlogConfig {
       enabled: true,
       page: "front",
       options: { layout: "one-column", phases: phases(VFR_PHASES) },
+    },
+    {
+      id: id("sec"),
+      type: "rtCall",
+      enabled: false,
+      page: "front",
+      options: rtCallDefault(),
     },
     {
       id: id("sec"),
@@ -367,6 +424,13 @@ export function blankTemplate(): PlogConfig {
     },
     {
       id: id("sec"),
+      type: "rtCall",
+      enabled: false,
+      page: "front",
+      options: rtCallDefault(),
+    },
+    {
+      id: id("sec"),
       type: "minima",
       enabled: false,
       page: "front",
@@ -418,10 +482,94 @@ export function blankTemplate(): PlogConfig {
   };
 }
 
-export type TemplateId = "ifr" | "vfr" | "blank";
+export function rtTemplate(): PlogConfig {
+  const sections: SectionInstance[] = [
+    {
+      id: id("sec"),
+      type: "flightLog",
+      enabled: true,
+      page: "front",
+      options: {
+        rows: 8,
+        columns: cols(
+          ["FROM", "TO", "SAFE ALT", "ALT", "TRK", "WIND", "HDG (M)", "DIST", "TIME", "ETA", "ATA", "FUEL"],
+          ["HDG (M)"]
+        ),
+        heightFraction: 0.38,
+      },
+    },
+    {
+      id: id("sec"),
+      type: "rtCall",
+      enabled: true,
+      page: "front",
+      options: rtCallDefault(),
+    },
+    {
+      id: id("sec"),
+      type: "checklist",
+      enabled: false,
+      page: "front",
+      options: { layout: "one-column", phases: phases(VFR_PHASES) },
+    },
+    {
+      id: id("sec"),
+      type: "minima",
+      enabled: false,
+      page: "front",
+      options: {},
+    },
+    {
+      id: id("sec"),
+      type: "routeSketch",
+      enabled: true,
+      page: "back",
+      options: { heightFraction: 0.4 },
+    },
+    {
+      id: id("sec"),
+      type: "commsNav",
+      enabled: true,
+      page: "back",
+      options: { rows: 6 },
+    },
+    {
+      id: id("sec"),
+      type: "fuelPlan",
+      enabled: true,
+      page: "back",
+      options: { rows: fuelRows() },
+    },
+    {
+      id: id("sec"),
+      type: "notes",
+      enabled: true,
+      page: "back",
+      options: { lines: 4 },
+    },
+    {
+      id: id("sec"),
+      type: "clearance",
+      enabled: false,
+      page: "back",
+      options: { lines: 5 },
+    },
+  ];
+  return {
+    version: 1,
+    title: "VFR PLOG",
+    pageSize: "A5",
+    invertBack: true,
+    headerFields: ["C/S", "Date", "A/C"],
+    sections,
+  };
+}
+
+export type TemplateId = "ifr" | "vfr" | "rt" | "blank";
 
 export const TEMPLATES: { id: TemplateId; name: string; build: () => PlogConfig }[] = [
   { id: "ifr", name: "IFR Template", build: ifrTemplate },
   { id: "vfr", name: "VFR Template", build: vfrTemplate },
+  { id: "rt", name: "R/T Template", build: rtTemplate },
   { id: "blank", name: "Blank canvas", build: blankTemplate },
 ];

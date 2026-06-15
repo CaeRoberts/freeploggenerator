@@ -9,6 +9,7 @@ import { usePlogStore } from "@/lib/store";
 import { Segmented, Toggle } from "../ui";
 import { FlightLogEditor } from "./FlightLogEditor";
 import { ChecklistEditor } from "./ChecklistEditor";
+import { RtCallEditor } from "./RtCallEditor";
 import {
   CommsNavEditor,
   FuelPlanEditor,
@@ -23,6 +24,8 @@ function SectionOptionsEditor({ section }: { section: SectionInstance }) {
       return <FlightLogEditor sectionId={section.id} options={section.options} />;
     case "checklist":
       return <ChecklistEditor sectionId={section.id} options={section.options} />;
+    case "rtCall":
+      return <RtCallEditor sectionId={section.id} options={section.options} />;
     case "fuelPlan":
       return <FuelPlanEditor sectionId={section.id} options={section.options} />;
     case "commsNav":
