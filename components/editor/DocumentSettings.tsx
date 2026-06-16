@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { usePlogStore } from "@/lib/store";
 import { fileToLogoDataUrl } from "@/lib/logo";
-import { GhostButton, IconButton, TextInput, Toggle } from "../ui";
+import { DEFAULT_LOGO_H_MM, DEFAULT_LOGO_W_MM } from "@/lib/metrics";
+import { GhostButton, IconButton, RangeRow, TextInput, Toggle } from "../ui";
 
 const FLIP_TOOLTIP =
   "Rotates the back page 180° in the PDF so it reads upright when you flip the card's bottom edge up over a kneeboard clip. Print duplex, flip on long edge. Disable for two separate sheets or short-edge duplex.";
@@ -25,7 +26,11 @@ export function DocumentSettings() {
   const onLogoFile = async (file: File) => {
     setLogoError(null);
     try {
-      patchConfig({ logo: await fileToLogoDataUrl(file) });
+      patchConfig({
+        logo: await fileToLogoDataUrl(file),
+        logoWidth: config.logoWidth ?? DEFAULT_LOGO_W_MM,
+        logoHeight: config.logoHeight ?? DEFAULT_LOGO_H_MM,
+      });
     } catch (e) {
       setLogoError(e instanceof Error ? e.message : "Could not load that image.");
     }
@@ -101,6 +106,26 @@ export function DocumentSettings() {
               "Replaces the title on the card. Saved on this device and in JSON export / PDF; not carried in share links."
             )}
           </p>
+          {config.logo && (
+            <div className="pt-1">
+              <RangeRow
+                label="Logo width"
+                value={config.logoWidth ?? DEFAULT_LOGO_W_MM}
+                min={10}
+                max={90}
+                format={(v) => `${v} mm`}
+                onChange={(logoWidth) => patchConfig({ logoWidth })}
+              />
+              <RangeRow
+                label="Logo height"
+                value={config.logoHeight ?? DEFAULT_LOGO_H_MM}
+                min={4}
+                max={30}
+                format={(v) => `${v} mm`}
+                onChange={(logoHeight) => patchConfig({ logoHeight })}
+              />
+            </div>
+          )}
         </div>
 
         <div>

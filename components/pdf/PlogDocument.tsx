@@ -20,19 +20,23 @@ import type {
 import {
   CONTENT_H,
   CONTENT_W,
+  FOOTER_H,
   MARGIN,
   MINIMA_H,
   PAGE_H,
   PAGE_W,
   SECTION_GAP,
-  TITLE_BAR_H,
   balanceChecklist,
   balanceRtBlocks,
   checklistColumnHeights,
   flexSectionId,
+  frontTitleHeight,
+  logoBox,
   minimaSlottedIntoChecklist,
   pageSections,
 } from "@/lib/metrics";
+
+const SITE = "www.freeploggenerator.com";
 
 const INK = "#111111";
 const BAND = "#d8d8d8";
@@ -69,10 +73,23 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width: CONTENT_W,
-    // Fills the page so the flexible section can grow, yet can exceed it
-    // (clipped by the page edge) without collapsing when content overflows.
-    minHeight: CONTENT_H,
+    // Fills the page (minus the footer strip) so the flexible section can
+    // grow, yet can exceed it (clipped by the page edge) without collapsing
+    // when content overflows.
+    minHeight: CONTENT_H - FOOTER_H,
     flexDirection: "column",
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: FOOTER_H,
+    borderTopWidth: 0.4,
+    borderTopColor: HAIR,
+    paddingTop: 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
   band: {
     backgroundColor: BAND,
@@ -98,21 +115,22 @@ function SectionBand({ title }: { title: string }) {
 /* ----------------------------- title bar ----------------------------- */
 
 function TitleBar({ config }: { config: PlogConfig }) {
+  const logo = logoBox(config);
   return (
     <View
       style={{
-        height: TITLE_BAR_H,
+        height: frontTitleHeight(config),
         flexDirection: "row",
         alignItems: "flex-end",
         justifyContent: "space-between",
         marginBottom: SECTION_GAP,
       }}
     >
-      {config.logo ? (
+      {config.logo && logo ? (
         // eslint-disable-next-line jsx-a11y/alt-text
         <Image
           src={config.logo}
-          style={{ height: TITLE_BAR_H - 2, maxWidth: 170, objectFit: "contain" }}
+          style={{ width: logo.w, height: logo.h, objectFit: "contain" }}
         />
       ) : (
         <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 12, letterSpacing: 1 }}>
@@ -740,6 +758,36 @@ function PageContent({
   );
 }
 
+function PageFooter() {
+  return (
+    <View style={styles.footer}>
+      <Text style={{ fontSize: 4.8, color: FAINT, letterSpacing: 0.3 }}>
+        PLOG generated at {SITE}
+      </Text>
+    </View>
+  );
+}
+
+/** The fixed-size, optionally-rotated content area + attribution footer. */
+function PageStage({
+  config,
+  page,
+  rotate,
+}: {
+  config: PlogConfig;
+  page: PageSide;
+  rotate: boolean;
+}) {
+  return (
+    <View style={[styles.stage, rotate ? { transform: "rotate(180deg)" } : {}]}>
+      <View style={styles.flow}>
+        <PageContent config={config} page={page} />
+      </View>
+      <PageFooter />
+    </View>
+  );
+}
+
 /** One A5 area (margin + content) for the side-by-side A4 sheet. */
 function A5Half({
   config,
@@ -752,11 +800,7 @@ function A5Half({
 }) {
   return (
     <View style={{ width: PAGE_W, height: PAGE_H, padding: MARGIN }}>
-      <View style={[styles.stage, rotate ? { transform: "rotate(180deg)" } : {}]}>
-        <View style={styles.flow}>
-          <PageContent config={config} page={page} />
-        </View>
-      </View>
+      <PageStage config={config} page={page} rotate={rotate} />
     </View>
   );
 }
@@ -831,13 +875,7 @@ export function PlogDocument({
         const rotate = !previewPage && side === "back" && config.invertBack;
         return (
           <Page key={side} size={[PAGE_W, PAGE_H]} style={styles.page} wrap={false}>
-            <View
-              style={[styles.stage, rotate ? { transform: "rotate(180deg)" } : {}]}
-            >
-              <View style={styles.flow}>
-                <PageContent config={config} page={side} />
-              </View>
-            </View>
+            <PageStage config={config} page={side} rotate={rotate} />
           </Page>
         );
       })}

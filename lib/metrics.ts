@@ -24,6 +24,10 @@ export const COMMS_ROW_H = 13;
 export const WRITING_LINE_H = 17;
 export const MINIMA_H = 46;
 export const SECTION_GAP = 5;
+export const FOOTER_H = 11; // attribution strip reserved at the page bottom
+export const MM = 72 / 25.4; // mm -> pt
+export const DEFAULT_LOGO_W_MM = 42;
+export const DEFAULT_LOGO_H_MM = 7;
 export const RT_LINE_H = 9.5;
 export const RT_BLOCK_TITLE_H = 11;
 export const RT_NOTE_H = 9;
@@ -196,13 +200,28 @@ export interface PageLayout {
 /** Writing lines can compress to roughly this height when their section flexes. */
 const WRITING_LINE_MIN = 9;
 
+/** Logo box in pt (width/height), or null when no logo is set. */
+export function logoBox(config: PlogConfig): { w: number; h: number } | null {
+  if (!config.logo) return null;
+  return {
+    w: (config.logoWidth ?? DEFAULT_LOGO_W_MM) * MM,
+    h: (config.logoHeight ?? DEFAULT_LOGO_H_MM) * MM,
+  };
+}
+
+/** Height of the front-page title row, growing to fit a tall logo. */
+export function frontTitleHeight(config: PlogConfig): number {
+  const box = logoBox(config);
+  return box ? Math.max(TITLE_BAR_H, box.h + 2) : TITLE_BAR_H;
+}
+
 export function computePageLayout(
   config: PlogConfig,
   page: PageSide
 ): PageLayout {
   const sections = pageSections(config, page);
   const flexId = flexSectionId(sections);
-  const top = page === "front" ? TITLE_BAR_H + SECTION_GAP : 0;
+  const top = page === "front" ? frontTitleHeight(config) + SECTION_GAP : 0;
   const gaps = Math.max(sections.length - 1, 0) * SECTION_GAP;
   const total =
     top +
@@ -215,10 +234,11 @@ export function computePageLayout(
       }
       return sum + sectionHeight(s);
     }, 0);
+  // The attribution footer reserves a strip at the bottom of every page.
   return {
     sections,
     flexId,
     usedHeight: total,
-    overflow: total > CONTENT_H + 1,
+    overflow: total > CONTENT_H - FOOTER_H + 1,
   };
 }

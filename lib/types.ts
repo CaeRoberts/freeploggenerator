@@ -118,6 +118,8 @@ export interface PlogConfig {
    * in JSON export / PDF, but omitted from share links to keep them short.
    */
   logo?: string;
+  logoWidth?: number; // logo box width in mm
+  logoHeight?: number; // logo box height in mm
   pageSize: "A5" | "FLYBOYS_5x8"; // A5 shipped first; enum ready for 5"x8"
   invertBack: boolean; // the bottom-flip trick
   headerFields: string[];
