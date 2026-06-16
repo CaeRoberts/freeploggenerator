@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type {
   ChecklistOptions,
   ChecklistPhase,
@@ -108,9 +108,17 @@ function TitleBar({ config }: { config: PlogConfig }) {
         marginBottom: SECTION_GAP,
       }}
     >
-      <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 12, letterSpacing: 1 }}>
-        {config.title}
-      </Text>
+      {config.logo ? (
+        // eslint-disable-next-line jsx-a11y/alt-text
+        <Image
+          src={config.logo}
+          style={{ height: TITLE_BAR_H - 2, maxWidth: 170, objectFit: "contain" }}
+        />
+      ) : (
+        <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 12, letterSpacing: 1 }}>
+          {config.title}
+        </Text>
+      )}
       <View style={{ flexDirection: "row" }}>
         {config.headerFields.map((field, i) => (
           <View

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { usePlogStore } from "@/lib/store";
+import { fileToLogoDataUrl } from "@/lib/logo";
 import { GhostButton, IconButton, TextInput, Toggle } from "../ui";
 
 const FLIP_TOOLTIP =
@@ -11,12 +12,23 @@ export function DocumentSettings() {
   const config = usePlogStore((s) => s.config);
   const patchConfig = usePlogStore((s) => s.patchConfig);
   const [newField, setNewField] = useState("");
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoInput = useRef<HTMLInputElement>(null);
 
   const addField = () => {
     const f = newField.trim();
     if (!f) return;
     patchConfig({ headerFields: [...config.headerFields, f] });
     setNewField("");
+  };
+
+  const onLogoFile = async (file: File) => {
+    setLogoError(null);
+    try {
+      patchConfig({ logo: await fileToLogoDataUrl(file) });
+    } catch (e) {
+      setLogoError(e instanceof Error ? e.message : "Could not load that image.");
+    }
   };
 
   return (
@@ -35,6 +47,61 @@ export function DocumentSettings() {
             ariaLabel="PLOG title"
           />
         </label>
+
+        <div>
+          <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+            Logo
+          </span>
+          <div className="flex items-center gap-3 pt-1.5">
+            <div className="flex h-10 w-24 shrink-0 items-center justify-center border border-hairline bg-paper-deep/40">
+              {config.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={config.logo}
+                  alt="PLOG logo"
+                  className="max-h-9 max-w-[88px] object-contain"
+                />
+              ) : (
+                <span className="text-[10px] text-ink-faint">No logo</span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <GhostButton onClick={() => logoInput.current?.click()}>
+                {config.logo ? "Replace" : "Upload logo"}
+              </GhostButton>
+              {config.logo && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    patchConfig({ logo: undefined });
+                    setLogoError(null);
+                  }}
+                  className="text-left text-[11px] text-ink-faint underline underline-offset-2 hover:text-ink"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            <input
+              ref={logoInput}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onLogoFile(f);
+                e.target.value = "";
+              }}
+            />
+          </div>
+          <p className="pt-1 text-[10px] leading-relaxed text-ink-faint">
+            {logoError ? (
+              <span className="text-amber-800">{logoError}</span>
+            ) : (
+              "Replaces the title on the card. Saved on this device and in JSON export / PDF; not carried in share links."
+            )}
+          </p>
+        </div>
 
         <div>
           <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">

@@ -112,6 +112,12 @@ export type SectionInstance = SectionBase &
 export interface PlogConfig {
   version: 1;
   title: string;
+  /**
+   * Optional logo (a downscaled PNG data URL) shown in place of the title
+   * text on the card — e.g. a flight school's branding. Kept on-device and
+   * in JSON export / PDF, but omitted from share links to keep them short.
+   */
+  logo?: string;
   pageSize: "A5" | "FLYBOYS_5x8"; // A5 shipped first; enum ready for 5"x8"
   invertBack: boolean; // the bottom-flip trick
   headerFields: string[];
