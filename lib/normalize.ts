@@ -25,15 +25,25 @@ export function normalizeConfig(config: PlogConfig): PlogConfig {
   const sections = config.sections.map((s): SectionInstance => {
     const id = fix(s.id);
     switch (s.type) {
-      case "flightLog":
-        return {
-          ...s,
-          id,
-          options: {
-            ...s.options,
-            columns: s.options.columns.map((c) => ({ ...c, id: fix(c.id) })),
-          },
-        };
+      case "flightLog": {
+        const remap: Record<string, string> = {};
+        const columns = s.options.columns.map((c) => {
+          const nid = fix(c.id);
+          remap[c.id] = nid;
+          return { ...c, id: nid };
+        });
+        const values = s.options.values
+          ? Object.fromEntries(
+              Object.entries(s.options.values).map(([k, v]) => {
+                const sep = k.lastIndexOf(":");
+                const cid = k.slice(0, sep);
+                const row = k.slice(sep + 1);
+                return [`${remap[cid] ?? cid}:${row}`, v];
+              })
+            )
+          : undefined;
+        return { ...s, id, options: { ...s.options, columns, values } };
+      }
       case "checklist":
         return {
           ...s,

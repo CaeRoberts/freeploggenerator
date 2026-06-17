@@ -21,6 +21,8 @@ export interface FlightLogOptions {
   rows: number; // 4–16
   columns: ColumnDef[];
   heightFraction: number; // 0.3–0.6 of page height
+  /** Pre-filled cell text, keyed by `${columnId}:${rowIndex}`. */
+  values?: Record<string, string>;
 }
 
 export interface ChecklistItem {

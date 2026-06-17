@@ -44,6 +44,16 @@ export function FlightLogEditor({
     setNewColumn("");
   };
 
+  const setCell = (colId: string, row: number, value: string) => {
+    const key = `${colId}:${row}`;
+    const next = { ...(options.values ?? {}) };
+    if (value) next[key] = value;
+    else delete next[key];
+    patch({ values: next });
+  };
+
+  const hasData = Object.keys(options.values ?? {}).length > 0;
+
   return (
     <div className="space-y-1">
       <RangeRow
@@ -115,6 +125,66 @@ export function FlightLogEditor({
             ariaLabel="New column name"
           />
           <GhostButton onClick={addColumn}>Add</GhostButton>
+        </div>
+      </div>
+
+      <div className="pt-3">
+        <div className="flex items-baseline justify-between pb-1">
+          <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+            Leg data
+          </span>
+          {hasData && (
+            <button
+              type="button"
+              onClick={() => patch({ values: {} })}
+              className="text-[10px] text-ink-faint underline underline-offset-2 hover:text-ink"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+        <p className="pb-1.5 text-[10px] leading-relaxed text-ink-faint">
+          Type to pre-fill the table; leave blank to write by hand. Scroll
+          sideways for more columns.
+        </p>
+        <div className="overflow-x-auto border border-hairline">
+          <table className="border-collapse">
+            <thead>
+              <tr>
+                <th className="sticky left-0 z-10 bg-paper-deep px-1 py-0.5 text-[9px] font-medium text-ink-faint">
+                  #
+                </th>
+                {options.columns.map((c) => (
+                  <th
+                    key={c.id}
+                    className="border-l border-hairline px-1 py-0.5 text-[9px] font-medium text-ink-soft"
+                  >
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: options.rows }).map((_, r) => (
+                <tr key={r} className="border-t border-hairline">
+                  <td className="sticky left-0 z-10 bg-paper-deep px-1 text-center font-mono text-[9px] text-ink-faint">
+                    {r + 1}
+                  </td>
+                  {options.columns.map((c) => (
+                    <td key={c.id} className="border-l border-hairline">
+                      <input
+                        type="text"
+                        value={options.values?.[`${c.id}:${r}`] ?? ""}
+                        onChange={(e) => setCell(c.id, r, e.target.value)}
+                        aria-label={`${c.label} leg ${r + 1}`}
+                        className="w-[52px] bg-transparent px-1 py-0.5 text-center text-[11px] text-ink outline-none focus:bg-paper-deep/60"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

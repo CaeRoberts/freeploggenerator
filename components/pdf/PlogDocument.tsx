@@ -225,17 +225,27 @@ function FlightLog({ options }: { options: FlightLogOptions }) {
               borderBottomColor: HAIR,
             }}
           >
-            {columns.map((c, i) => (
-              <View
-                key={c.id}
-                style={{
-                  flex: flex(c),
-                  borderRightWidth: i < columns.length - 1 ? THIN : 0,
-                  borderRightColor: HAIR,
-                  backgroundColor: c.shaded ? SHADE : undefined,
-                }}
-              />
-            ))}
+            {columns.map((c, i) => {
+              const val = options.values?.[`${c.id}:${r}`];
+              return (
+                <View
+                  key={c.id}
+                  style={{
+                    flex: flex(c),
+                    borderRightWidth: i < columns.length - 1 ? THIN : 0,
+                    borderRightColor: HAIR,
+                    backgroundColor: c.shaded ? SHADE : undefined,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    paddingHorizontal: 1,
+                  }}
+                >
+                  {val ? (
+                    <Text style={{ fontSize: 6, textAlign: "center" }}>{val}</Text>
+                  ) : null}
+                </View>
+              );
+            })}
           </View>
         ))}
       </View>
