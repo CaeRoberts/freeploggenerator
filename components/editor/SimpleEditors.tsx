@@ -89,6 +89,12 @@ export function FuelPlanEditor({
   );
 }
 
+const COMMS_COLS = [
+  ["station", "Station"],
+  ["freq", "Freq"],
+  ["id", "ID"],
+] as const;
+
 export function CommsNavEditor({
   sectionId,
   options,
@@ -97,14 +103,78 @@ export function CommsNavEditor({
   options: CommsNavOptions;
 }) {
   const patch = usePatch<CommsNavOptions>(sectionId);
+  const hasData = Object.keys(options.values ?? {}).length > 0;
+
+  const setCell = (col: string, row: number, value: string) => {
+    const key = `${col}:${row}`;
+    const next = { ...(options.values ?? {}) };
+    if (value) next[key] = value;
+    else delete next[key];
+    patch({ values: next });
+  };
+
   return (
-    <RangeRow
-      label="Rows"
-      value={options.rows}
-      min={2}
-      max={14}
-      onChange={(rows) => patch({ rows })}
-    />
+    <div className="space-y-2">
+      <RangeRow
+        label="Rows"
+        value={options.rows}
+        min={2}
+        max={14}
+        onChange={(rows) => patch({ rows })}
+      />
+
+      <div>
+        <div className="flex items-baseline justify-between pb-1">
+          <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+            Frequencies
+          </span>
+          {hasData && (
+            <button
+              type="button"
+              onClick={() => patch({ values: {} })}
+              className="text-[10px] text-ink-faint underline underline-offset-2 hover:text-ink"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+        <table className="w-full border-collapse border-y border-hairline">
+          <thead>
+            <tr>
+              <th className="w-5" />
+              {COMMS_COLS.map(([key, label]) => (
+                <th
+                  key={key}
+                  className="border-l border-hairline px-1 py-0.5 text-left text-[9px] font-medium text-ink-soft"
+                >
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: options.rows }).map((_, r) => (
+              <tr key={r} className="border-t border-hairline">
+                <td className="text-center font-mono text-[9px] text-ink-faint">
+                  {r + 1}
+                </td>
+                {COMMS_COLS.map(([key, label]) => (
+                  <td key={key} className="border-l border-hairline">
+                    <input
+                      type="text"
+                      value={options.values?.[`${key}:${r}`] ?? ""}
+                      onChange={(e) => setCell(key, r, e.target.value)}
+                      aria-label={`${label} row ${r + 1}`}
+                      className="w-full bg-transparent px-1 py-0.5 text-[11px] text-ink outline-none focus:bg-paper-deep/60"
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 

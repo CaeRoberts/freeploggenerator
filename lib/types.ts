@@ -54,6 +54,8 @@ export interface FuelPlanOptions {
 
 export interface CommsNavOptions {
   rows: number;
+  /** Pre-filled cell text, keyed by `${col}:${rowIndex}` (col = station|freq|id). */
+  values?: Record<string, string>;
 }
 
 /** One labelled blank: a bold prompt, a dotted fill, and a faint hint. */

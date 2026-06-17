@@ -453,9 +453,9 @@ function FuelPlan({ options, flex }: { options: FuelPlanOptions; flex: boolean }
 
 function CommsNav({ options, flex }: { options: CommsNavOptions; flex: boolean }) {
   const headers = [
-    ["STATION", 1.6],
-    ["FREQ", 0.9],
-    ["ID", 0.6],
+    ["station", "STATION", 1.6],
+    ["freq", "FREQ", 0.9],
+    ["id", "ID", 0.6],
   ] as const;
   return (
     <View style={{ flexDirection: "column", flexGrow: flex ? 1 : 0 }}>
@@ -471,9 +471,9 @@ function CommsNav({ options, flex }: { options: CommsNavOptions; flex: boolean }
             alignItems: "center",
           }}
         >
-          {headers.map(([label, f], i) => (
+          {headers.map(([key, label, f], i) => (
             <View
-              key={label}
+              key={key}
               style={{
                 flex: f,
                 borderRightWidth: i < headers.length - 1 ? THIN : 0,
@@ -505,16 +505,23 @@ function CommsNav({ options, flex }: { options: CommsNavOptions; flex: boolean }
               borderBottomColor: HAIR,
             }}
           >
-            {headers.map(([label, f], i) => (
-              <View
-                key={label}
-                style={{
-                  flex: f,
-                  borderRightWidth: i < headers.length - 1 ? THIN : 0,
-                  borderRightColor: HAIR,
-                }}
-              />
-            ))}
+            {headers.map(([key, , f], i) => {
+              const val = options.values?.[`${key}:${r}`];
+              return (
+                <View
+                  key={key}
+                  style={{
+                    flex: f,
+                    borderRightWidth: i < headers.length - 1 ? THIN : 0,
+                    borderRightColor: HAIR,
+                    justifyContent: "center",
+                    paddingHorizontal: 3,
+                  }}
+                >
+                  {val ? <Text style={{ fontSize: 6.3 }}>{val}</Text> : null}
+                </View>
+              );
+            })}
           </View>
         ))}
       </View>
