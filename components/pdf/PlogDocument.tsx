@@ -88,8 +88,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.4,
     borderTopColor: HAIR,
     paddingTop: 2,
+    paddingHorizontal: 3,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
   },
   band: {
     backgroundColor: BAND,
@@ -775,11 +776,25 @@ function PageContent({
   );
 }
 
-function PageFooter() {
+function PageFooter({ version }: { version?: string }) {
+  const ver = version?.trim();
   return (
     <View style={styles.footer}>
-      <Text style={{ fontSize: 4.8, color: FAINT, letterSpacing: 0.3 }}>
+      <Text style={{ flex: 1, fontSize: 4.8, color: FAINT }}> </Text>
+      <Text
+        style={{
+          fontSize: 4.8,
+          color: FAINT,
+          letterSpacing: 0.3,
+          textAlign: "center",
+        }}
+      >
         PLOG generated at {SITE}
+      </Text>
+      <Text
+        style={{ flex: 1, fontSize: 4.8, color: FAINT, textAlign: "right" }}
+      >
+        {ver ? `Rev ${ver}` : " "}
       </Text>
     </View>
   );
@@ -800,7 +815,7 @@ function PageStage({
       <View style={styles.flow}>
         <PageContent config={config} page={page} />
       </View>
-      <PageFooter />
+      <PageFooter version={config.versionLabel} />
     </View>
   );
 }

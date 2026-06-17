@@ -53,6 +53,18 @@ export function DocumentSettings() {
           />
         </label>
 
+        <label className="block">
+          <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+            Version
+          </span>
+          <TextInput
+            value={config.versionLabel ?? ""}
+            onChange={(versionLabel) => patchConfig({ versionLabel })}
+            ariaLabel="Version"
+            placeholder="e.g. 2.1 — footer shows “Rev 2.1”"
+          />
+        </label>
+
         <div>
           <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
             Logo

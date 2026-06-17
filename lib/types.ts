@@ -116,6 +116,8 @@ export type SectionInstance = SectionBase &
 export interface PlogConfig {
   version: 1;
   title: string;
+  /** User-facing revision label shown in the page footer, e.g. "v2.1". */
+  versionLabel?: string;
   /**
    * Optional logo (a downscaled PNG data URL) shown in place of the title
    * text on the card — e.g. a flight school's branding. Kept on-device and
